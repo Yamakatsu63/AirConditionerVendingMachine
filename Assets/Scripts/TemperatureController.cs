@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class TemperatureController : MonoBehaviour
 {
     [SerializeField] GameObject currentTemperatureText;
-    [SerializeField] GameObject airVolumeText;
+    [SerializeField] Text airVolumeText;
+    [SerializeField] GameObject pointLight;
     private float timeLeft;
     public float currenTemperature;
     public bool stop = false;
@@ -26,29 +27,38 @@ public class TemperatureController : MonoBehaviour
     public void OnClickRapidButton()
     {
         airVolume = "rapid";
-        airVolumeText.GetComponent<Text>().text = "急";
+        airVolumeText.text = "急";
     }
 
     public void OnClickLooseButton()
     {
         airVolume = "loose";
-        airVolumeText.GetComponent<Text>().text = "緩";
+        airVolumeText.text = "緩";
     }
     
     // Update is called once per frame
     void Update()
     {
         float presetTempreture = GetComponent<Temperature>().temperature;
-        
-        timeLeft -= Time.deltaTime;
+
+        if (stop)
+        {
+            pointLight.SetActive(false);
+        }
+
         if (GetComponent<CalcurateChange>().isStart)
         {
+
             if (stop)
             {
-                
+                pointLight.SetActive(false);
+                return;
             }
-            else if (timeLeft <= 0.0f)
+            timeLeft -= Time.deltaTime;
+            if (timeLeft <= 0.0f)
             {
+                pointLight.SetActive(true);
+
                 timeLeft = 1.0f;
             
                 if (currenTemperature < presetTempreture)

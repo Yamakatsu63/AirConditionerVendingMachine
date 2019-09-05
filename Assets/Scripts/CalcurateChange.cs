@@ -7,6 +7,7 @@ public class CalcurateChange : MonoBehaviour
 {
     [SerializeField] GameObject welcomeText;
     [SerializeField] GameObject moneyManager;
+    [SerializeField] GameObject RemainingTime;
     public bool isStart = false;
     public bool returned = false;
 
@@ -14,6 +15,7 @@ public class CalcurateChange : MonoBehaviour
     public int change = -500;
 
     private float leftTime;
+    private float remainingTime = 0f;
 
     private void Start()
     {
@@ -70,35 +72,46 @@ public class CalcurateChange : MonoBehaviour
 
     private void Update()
     {
-        leftTime += Time.deltaTime;
-        if(leftTime >= 10)
+        if (isStart)
         {
-            leftTime = 0;
-            if (returned)
+            leftTime += Time.deltaTime;
+            
+            if (leftTime >= 10)
             {
-                GetComponent<TemperatureController>().stop = true;
+                leftTime = 0;
+                if (returned)
+                {
+                    GetComponent<TemperatureController>().stop = true;
+                }
+                if (change < 0)
+                {
+                    return;
+                }
+                change -= 500;
+                moneyManager.GetComponent<MoneyManager>().RenewalSales();
+                if (change < 0)
+                {
+                    int lack = -1 * change;
+                    welcomeText.GetComponent<Text>().text = lack.ToString() + "円足りません";
+                    GetComponent<TemperatureController>().stop = true;
+                    isStart = false;
+                }
+                else
+                {
+                    welcomeText.GetComponent<Text>().text = "残金は" + change.ToString() + "円です";
+                }
             }
-            if (change < 0)
+            if (change >= 0)
             {
-                return;
+                GetComponent<TemperatureController>().stop = false;
+                returned = false;
             }
-            change -= 500;
-            moneyManager.GetComponent<MoneyManager>().RenewalSales();
-            if(change < 0)
+            if (!GetComponent<TemperatureController>().stop)
             {
-                int lack = -1 * change;
-                welcomeText.GetComponent<Text>().text = lack.ToString() + "円足りません";
-                GetComponent<TemperatureController>().stop = true;
-            }
-            else
-            {
-                welcomeText.GetComponent<Text>().text = "残金は" + change.ToString() + "円です";
+                CalcRemainingTime();
             }
         }
-        if(change >= 0)
-        {
-            GetComponent<TemperatureController>().stop = false;
-        }
+        
     }
 
     public void OnClickReturnButton()
@@ -195,6 +208,17 @@ public class CalcurateChange : MonoBehaviour
 
         //welcomeText.GetComponent<Text>().text = "おつりは10000円札"+ count10000 +"枚，5000円札"+ count5000 + "枚，1000円札"+ count1000 + "枚，500円硬貨" + count500 + "枚，100円硬貨" + count100+ "枚です";
 
+    }
+
+    private void CalcRemainingTime()
+    {
+        remainingTime = 10 - leftTime;
+        if (!returned)
+        {
+            remainingTime += (change / 500) * 10;
+        }
+        //remainingTime += 10 - leftTime;
+        RemainingTime.GetComponent<Text>().text = remainingTime.ToString("F0");
     }
 
 }
