@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class TemperatureController : MonoBehaviour
 {
     [SerializeField] GameObject currentTemperatureText;
-    //[SerializeField] GameObject putInButton;
+    [SerializeField] GameObject airVolumeText;
     private float timeLeft;
     public float currenTemperature;
     public bool stop = false;
-    public string airVolume = "normal"; 
+    public string airVolume; 
 
     private void Start()
     {
@@ -18,16 +18,21 @@ public class TemperatureController : MonoBehaviour
 
         //現在温度の初期値
         currenTemperature = 30;
+
+        //風量の初期値
+        airVolume = "loose";
     }
 
     public void OnClickRapidButton()
     {
         airVolume = "rapid";
+        airVolumeText.GetComponent<Text>().text = "急";
     }
 
     public void OnClickLooseButton()
     {
         airVolume = "loose";
+        airVolumeText.GetComponent<Text>().text = "緩";
     }
     
     // Update is called once per frame
@@ -42,25 +47,35 @@ public class TemperatureController : MonoBehaviour
             {
                 
             }
-            else if (timeLeft <= 0.0)
+            else if (timeLeft <= 0.0f)
             {
                 timeLeft = 1.0f;
             
                 if (currenTemperature < presetTempreture)
-                        {
+                {
                     if(airVolume == "rapid")
                     {
+                        currenTemperature += 0.3f;
+                    }
+                    else if(airVolume == "loose")
+                    {
+                        currenTemperature += 0.1f;
+                    }
+                }
+                else if (currenTemperature > presetTempreture)
+                {
+                    if(airVolume == "rapid")
+                    {
+                        currenTemperature -= 0.3f;
+                    }
+                    else if(airVolume == "loose")
+                    {
+                        currenTemperature -= 0.1f;
+                    }
+                }
 
-                    }
-                            currenTemperature += 0.1f;
-                        }
-                        else if (currenTemperature > presetTempreture)
-                        {
-                            currenTemperature -= 0.1f;
-                        }
-            
-                        currentTemperatureText.GetComponent<Text>().text = currenTemperature.ToString("F1") + "℃";
-                    }
+                currentTemperatureText.GetComponent<Text>().text = currenTemperature.ToString("F1") + "℃";
+            }
         }
     }
 }
